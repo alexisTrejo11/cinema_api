@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,13 +21,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-zddg61xag$^d%kzu@)zmd^2vzx+3+g)j(-%wt+s9f-_y(!d7(l'
+SECRET_KEY = 'django-insecure-si3b!_!+xwx3*_=j-$387h1%2b9*5y@6l@(znu*$9&n&edf+0m'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'food'
 ]
 
 MIDDLEWARE = [
@@ -75,11 +76,17 @@ WSGI_APPLICATION = 'food.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': config('POSTGRES_DB'),
+        'USER': config('POSTGRES_USER'),
+        'PASSWORD': config('POSTGRES_PASSWORD'),
+        'HOST': config('DATABASE_HOST', default='food-db'),
+        'PORT': config('DATABASE_PORT', default='5432'),
     }
 }
 
+# User Service URL for validation
+USER_SERVICE_URL = config('USER_SERVICE_URL')
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
