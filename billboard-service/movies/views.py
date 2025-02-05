@@ -112,7 +112,7 @@ class ShowtimeViewSet(viewsets.ModelViewSet):
             queryset = Showtime.objects.all()
 
             if 'cinema_id' in filters:
-                queryset = queryset.filter(cinema=filters['cinema_id'])
+                queryset = queryset.filter(theater__cinema_id=filters['cinema_id'])
 
             if 'movie_id' in filters:
                 queryset = queryset.filter(movie=filters['movie_id'])

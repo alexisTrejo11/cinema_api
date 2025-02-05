@@ -90,3 +90,7 @@ class Showtime(models.Model):
 
     def __str__(self):
         return f"{self.movie.title} at {self.start_time}"
+    
+    @property
+    def cinema(self):
+        return self.theater.cinema

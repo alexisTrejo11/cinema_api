@@ -17,6 +17,7 @@ class MovieSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class ShowtimeSerializer(serializers.ModelSerializer):
+    cinema = serializers.IntegerField(source='cinema.id', read_only=True) 
     class Meta:
         model = Showtime
         fields = '__all__'
