@@ -86,7 +86,7 @@ DATABASES = {
         'NAME': db_info.path[1:],  
         'USER': db_info.username,  
         'PASSWORD': db_info.password,  
-        'HOST': db_info.hostname,   
+        'HOST': 'localhost',   
         'PORT': db_info.port,
     }
 }
