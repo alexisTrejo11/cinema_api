@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'food'
+    'food_orders'
 ]
 
 MIDDLEWARE = [
@@ -80,7 +80,7 @@ DATABASES = {
         'NAME': config('POSTGRES_DB'),
         'USER': config('POSTGRES_USER'),
         'PASSWORD': config('POSTGRES_PASSWORD'),
-        'HOST': config('DATABASE_HOST', default='food-db'),
+        'HOST': 'localhost', #  config('DATABASE_HOST', default='food-db')
         'PORT': config('DATABASE_PORT', default='5432'),
     }
 }
