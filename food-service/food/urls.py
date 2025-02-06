@@ -1,15 +1,13 @@
+# urls.py
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from food_orders.views import ProductViewSet, OrderViewSet
-from django.contrib import admin
+from food_orders import views
 
-# Crear un enrutador
 router = DefaultRouter()
-router.register(r'products', ProductViewSet) 
-router.register(r'orders', OrderViewSet) 
+router.register(r'products', views.ProductViewSet)
+router.register(r'combos', views.ComboViewSet)
+router.register(r'promotions', views.PromotionViewSet)
 
-# Establecer las URL
 urlpatterns = [
-    path('admin/', admin.site.urls), 
-    path('api/', include(router.urls)),
+    path('', include(router.urls)),
 ]
