@@ -13,7 +13,7 @@ food-service/env/
 payment-service/.env
 payment-service/env/
 
-notfication-service/.env
-notfication-service/env/
+notification-service/.env
+notification-service/env/
 
 

@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'payment_app'
 ]
 
 MIDDLEWARE = [
@@ -80,7 +81,7 @@ DATABASES = {
         'NAME': config('POSTGRES_DB'),
         'USER': config('POSTGRES_USER'),
         'PASSWORD': config('POSTGRES_PASSWORD'),
-        'HOST': config('DATABASE_HOST', default='payment-db'),
+        'HOST': 'localhost',  # config('DATABASE_HOST', default='payment-db')
         'PORT': config('DATABASE_PORT', default='5432'),
     }
 }
@@ -88,6 +89,9 @@ DATABASES = {
 # External services
 USER_SERVICE_URL = config('USER_SERVICE_URL')
 TICKET_SERVICE_URL = config('TICKET_SERVICE_URL')
+
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
