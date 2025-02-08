@@ -26,7 +26,7 @@ class Payment(models.Model):
     ]
     
     reference_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
-    user_id = models.IntegerField(db_index=True)
+    user_id = models.IntegerField(db_index=True, null=True)
     booking_id = models.IntegerField(null=True, db_index=True)
     order_id = models.IntegerField(null=True, db_index=True)
     amount = models.DecimalField(
