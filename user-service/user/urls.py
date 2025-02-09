@@ -16,7 +16,19 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from accounts.views import SignupView, LoginView, LogoutView
+from wallet.views import get_wallet_info, add_credit, make_purchase
+
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('signup/', SignupView.as_view(), name='signup'),
+    path('login/', LoginView.as_view(), name='login'),
+    path('logout/', LogoutView.as_view(), name='logout'),
+
+    path('wallet/', get_wallet_info, name='get_wallet_info'),
+    path('wallet/add-credit/', add_credit, name='add_credit'),
+    path('wallet/make-purchase/', make_purchase, name='make_purchase'),
 ]
+

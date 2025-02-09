@@ -8,4 +8,4 @@ class User(AbstractUser):
     profile_picture = models.URLField(blank=True, null=True)
 
     def __str__(self):
-        return self.email
+        return self.email   
