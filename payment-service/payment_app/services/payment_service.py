@@ -11,7 +11,6 @@ class PaymentService:
 
     def create_payment(self, user_id, amount, payment_method_id, booking_id=None, 
                       order_id=None, ip_address=None):
-        """Handle payment creation and processing"""
         self.validator.validate_amount(amount)
         
         payment = Payment.objects.create(
@@ -30,7 +29,6 @@ class PaymentService:
         return payment
 
     def process_refund(self, payment, amount, reason, processed_by):
-        """Handle payment refund"""
         if payment.status != 'completed':
             raise ValidationError('Only completed payments can be refunded')
             
@@ -46,14 +44,12 @@ class PaymentService:
         return refund
 
     def __update_payment_status(self, payment, result):
-        """Update payment status based on processing result"""
         payment.status = result['status']
         payment.transaction_id = result.get('transaction_id', '')
         payment.payment_details = result
         payment.save()
 
     def __create_refund_record(self, payment, amount, reason, result, processed_by):
-        """Create refund record"""
         return PaymentRefund.objects.create(
             payment=payment,
             amount=amount,
@@ -64,7 +60,6 @@ class PaymentService:
         )
 
     def __update_payment_after_refund(self, payment, refund_amount):
-        """Update payment status after refund"""
         payment.refund_amount += refund_amount
         payment.status = ('partially_refunded' 
                          if payment.refund_amount < payment.amount 

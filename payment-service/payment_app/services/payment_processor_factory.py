@@ -1,4 +1,3 @@
-# services/payment_processor_factory.py
 from abc import ABC, abstractmethod
 import logging
 from django.core.exceptions import ValidationError
@@ -6,7 +5,6 @@ from django.core.exceptions import ValidationError
 logger = logging.getLogger(__name__)
 
 class PaymentProcessor(ABC):
-    """Abstract base class for payment processors"""
     @abstractmethod
     def process_payment(self, payment):
         pass
@@ -16,7 +14,6 @@ class PaymentProcessor(ABC):
         pass
 
 class CreditCardProcessor(PaymentProcessor):
-    """Processor for credit card payments"""
     def process_payment(self, payment):
         logger.info(f"Processing credit card payment {payment.reference_id}")
         # Aquí iría la integración real con el gateway de pago
@@ -34,7 +31,6 @@ class CreditCardProcessor(PaymentProcessor):
         }
 
 class PayPalProcessor(PaymentProcessor):
-    """Processor for PayPal payments"""
     def process_payment(self, payment):
         logger.info(f"Processing PayPal payment {payment.reference_id}")
         return {
@@ -51,10 +47,11 @@ class PayPalProcessor(PaymentProcessor):
         }
 
 class CinemaWalletProcessor(PaymentProcessor):
-    """Processor for internal cinema wallet payments"""
     def process_payment(self, payment):
         logger.info(f"Processing wallet payment {payment.reference_id}")
-        # Aquí iría la lógica para descontar del saldo del wallet
+ 
+        #TODO:Refund Wallet
+        
         return {
             'status': 'completed',
             'transaction_id': f'WL-{payment.reference_id}',
@@ -68,9 +65,7 @@ class CinemaWalletProcessor(PaymentProcessor):
             'refund_transaction_id': f'RF-WL-{payment.reference_id}'
         }
 
-class PaymentProcessorFactory:
-    """Factory class for creating payment processors"""
-    
+class PaymentProcessorFactory:    
     def __init__(self):
         self._processors = {
             'credit_card': CreditCardProcessor(),
