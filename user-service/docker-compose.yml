@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  user-db:
+  db:
     image: postgres:13
     env_file:
       - .env  
@@ -12,7 +12,7 @@ services:
     volumes:
       - user_data:/var/lib/postgresql/data/
 
-  user-service:
+  app:
     build: .
     ports:
       - "8001:8000"
@@ -22,7 +22,8 @@ services:
       DATABASE_URL: ${DATABASE_URL}
       USER_SERVICE_URL: ${USER_SERVICE_URL}
     depends_on:
-      - user-db
+      - db
+    command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
 
 volumes:
   user_data:
