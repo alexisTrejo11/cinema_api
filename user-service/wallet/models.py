@@ -4,7 +4,7 @@ from django.conf import settings
 user = settings.AUTH_USER_MODEL
 
 class CinemaWallet(models.Model):
-    user = models.OneToOneField(user, on_delete=models.CASCADE)
+    user = models.OneToOneField(user, on_delete=models.CASCADE, unique=True)
     balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
