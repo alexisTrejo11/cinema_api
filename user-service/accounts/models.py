@@ -14,3 +14,10 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.email   
+    
+    def social_login(self, provider, social_account):
+        
+        self.provider = provider
+        if not self.profile_picture:
+            self.profile_picture = social_account.extra_data.get('picture')
+        self.save()
