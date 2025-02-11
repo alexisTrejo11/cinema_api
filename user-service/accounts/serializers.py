@@ -1,8 +1,8 @@
 # serializers.py
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from .models import User
-from django.contrib.auth import authenticate
+from .models import User, UserRole
+from django.core.exceptions import ValidationError
 
 
 class UserSignupSerializer(serializers.ModelSerializer):
@@ -21,9 +21,15 @@ class UserSignupSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'email', 'phone', 'birth_date', 'profile_picture')
-          
+        fields = ['id', 'email', 'first_name', 'last_name', 'phone', 
+                 'birth_date', 'profile_picture', 'role', 'is_active']
+        read_only_fields = ['joined_at', 'last_login']
 
+    def validate_role(self, value):
+        if value not in UserRole.values:
+            raise ValidationError(f"Invalid role. Must be one of {UserRole.values}")
+        return value
+    
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):

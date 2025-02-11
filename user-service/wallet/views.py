@@ -1,81 +1,66 @@
-from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework import viewsets, status
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from .models import CinemaWallet, WalletTransaction
+from .services import WalletService
 from .serializers import WalletSerializer, WalletTransactionSerializer
-from decimal import Decimal
+from django.core.exceptions import ValidationError
 
+class WalletViewSet(viewsets.GenericViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = WalletSerializer
+    wallet_service = WalletService()
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_wallet_info(request):
-    try:
-        wallet = request.user.cinemawallet
-        serializer = WalletSerializer(wallet)
-        return Response({
-            'message': 'Wallet information retrieved successfully',
-            'data': serializer.data
-        })
-    except CinemaWallet.DoesNotExist:
-        return Response({
-            'message': 'Wallet not found'
-        }, status=status.HTTP_404_NOT_FOUND)
+    def get_serializer_class(self):
+        if self.action in ['add_credit', 'make_purchase']:
+            return WalletTransactionSerializer
+        return super().get_serializer_class()
 
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def add_credit(request):
-    try:
-        amount = Decimal(request.data.get('amount', 0))
-        if amount <= 0:
-            raise ValueError("Amount must be positive")
+    @action(detail=False, methods=['GET'])
+    def info(self, request):
+        try:
+            wallet = self.wallet_service.get_wallet(request.user)
+            serializer = self.get_serializer(wallet)
+            return Response({
+                'message': 'Wallet information retrieved successfully',
+                'data': serializer.data
+            })
+        except ValidationError as e:
+            return Response({
+                'message': str(e)
+            }, status=status.HTTP_404_NOT_FOUND)
 
-        wallet = request.user.cinemawallet
-        wallet.balance += amount
-        wallet.save()
+    @action(detail=False, methods=['POST'])
+    def add_credit(self, request):
+        try:
+            amount = request.data.get('amount')
+            wallet, transaction = self.wallet_service.add_credit(
+                request.user, 
+                amount
+            )
+            
+            return Response({
+                'message': 'Credit added successfully',
+                'data': {
+                    'new_balance': str(wallet.balance),
+                    'transaction': WalletTransactionSerializer(transaction).data
+                }
+            })
+        except ValidationError as e:
+            return Response({
+                'message': str(e)
+            }, status=status.HTTP_400_BAD_REQUEST)
 
-        transaction = WalletTransaction.objects.create(
-            wallet=wallet,
-            amount=amount,
-            transaction_type='DEPOSIT',
-            description=f'Credit added: ${amount}'
-        )
-
-        return Response({
-            'message': 'Credit added successfully',
-            'data': {
-                'new_balance': str(wallet.balance),
-                'transaction': WalletTransactionSerializer(transaction).data
-            }
-        })
-    except (ValueError, Exception) as e:
-        return Response({
-            'message': str(e)
-        }, status=status.HTTP_400_BAD_REQUEST)
-
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def make_purchase(request):
-    try:
-        amount = Decimal(request.data.get('amount', 0))
-        description = request.data.get('description', '')
-
-        if amount <= 0:
-            raise ValueError("Amount must be positive")
-
-        with transaction.atomic():
-            wallet = request.user.cinemawallet
-            if wallet.balance < amount:
-                raise ValueError("Insufficient funds")
-
-            wallet.balance -= amount
-            wallet.save()
-
-            transaction = WalletTransaction.objects.create(
-                wallet=wallet,
-                amount=-amount,
-                transaction_type='PURCHASE',
-                description=description
+    @action(detail=False, methods=['POST'])
+    def make_purchase(self, request):
+        try:
+            amount = request.data.get('amount')
+            description = request.data.get('description', '')
+            
+            wallet, transaction = self.wallet_service.make_purchase(
+                request.user,
+                amount,
+                description
             )
 
             return Response({
@@ -85,7 +70,7 @@ def make_purchase(request):
                     'transaction': WalletTransactionSerializer(transaction).data
                 }
             })
-    except (ValueError, Exception) as e:
-        return Response({
-            'message': str(e)
-        }, status=status.HTTP_400_BAD_REQUEST)
+        except ValidationError as e:
+            return Response({
+                'message': str(e)
+            }, status=status.HTTP_400_BAD_REQUEST)

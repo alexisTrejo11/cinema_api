@@ -1,23 +1,9 @@
-from .models import User
-from .utils import Result
+from ..models import User
+from ..utils import Result
 from rest_framework_simplejwt.tokens import RefreshToken
 import re
-from django.db import transaction
 from django.contrib.auth import authenticate
 from wallet.services import WalletService
-
-class UserService:
-    def create(self, data):
-        user = User.objects.create_user(
-            email=data['email'],
-            username=data['username'],
-            password=data['password'],
-            phone=data.get('phone', ''),
-            birth_date=data.get('birth_date'),
-            profile_picture=data.get('profile_picture')
-        )
-        return user
-
 
 class AuthService:
     def __init__(self):
