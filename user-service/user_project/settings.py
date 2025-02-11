@@ -62,7 +62,7 @@ MIDDLEWARE = [
     'allauth.account.middleware.AccountMiddleware',
 ]
 
-ROOT_URLCONF = 'user.urls'
+ROOT_URLCONF = 'user_project.urls'
 AUTH_USER_MODEL = 'accounts.User'
 
 TEMPLATES = [
@@ -81,7 +81,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'user.wsgi.application'
+WSGI_APPLICATION = 'user_project.wsgi.application'
 
 
 # Database
