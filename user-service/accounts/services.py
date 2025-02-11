@@ -41,6 +41,7 @@ class AuthService:
         return Result.success()
     
     def validate_login(self, data):
+        print(data)
         user = authenticate(
             username=data.get('email'),  
             password=data.get('password')  
@@ -70,7 +71,7 @@ class AuthService:
         token = RefreshToken(refresh_token)
         token.blacklist()
 
-    def __validate_password(password) -> Result:
+    def __validate_password(self,password) -> Result:
         if len(password) < 8:
             return Result.error("Password must be at least 8 characters long.")
 

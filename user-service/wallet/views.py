@@ -30,25 +30,24 @@ def add_credit(request):
         if amount <= 0:
             raise ValueError("Amount must be positive")
 
-        with transaction.atomic():
-            wallet = request.user.cinemawallet
-            wallet.balance += amount
-            wallet.save()
+        wallet = request.user.cinemawallet
+        wallet.balance += amount
+        wallet.save()
 
-            transaction = WalletTransaction.objects.create(
-                wallet=wallet,
-                amount=amount,
-                transaction_type='DEPOSIT',
-                description=f'Credit added: ${amount}'
-            )
+        transaction = WalletTransaction.objects.create(
+            wallet=wallet,
+            amount=amount,
+            transaction_type='DEPOSIT',
+            description=f'Credit added: ${amount}'
+        )
 
-            return Response({
-                'message': 'Credit added successfully',
-                'data': {
-                    'new_balance': str(wallet.balance),
-                    'transaction': WalletTransactionSerializer(transaction).data
-                }
-            })
+        return Response({
+            'message': 'Credit added successfully',
+            'data': {
+                'new_balance': str(wallet.balance),
+                'transaction': WalletTransactionSerializer(transaction).data
+            }
+        })
     except (ValueError, Exception) as e:
         return Response({
             'message': str(e)
