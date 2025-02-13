@@ -16,4 +16,10 @@ payment-service/env/
 notification-service/.env
 notification-service/env/
 
+food-service/products/__pycache__/
+food-service/orders/__pycache__/
+food-service/food/__pycache__/
+food-service/promotions/__pycache__/
+
+.gitignore
 

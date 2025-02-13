@@ -1,13 +1,15 @@
 # urls.py
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from food_orders import views
+from products.views import ProductViewSet
+from promotions.views import PromotionViewSet, ComboViewSet
+from orders.views import OrderViewSet
 
 router = DefaultRouter()
-router.register(r'products', views.ProductViewSet)
-router.register(r'combos', views.ComboViewSet)
-router.register(r'promotions', views.PromotionViewSet)
-router.register(r'orders', views.OrderViewSet)
+router.register(r'products', ProductViewSet)
+router.register(r'combos', ComboViewSet)
+router.register(r'promotions', PromotionViewSet)
+router.register(r'orders', OrderViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
