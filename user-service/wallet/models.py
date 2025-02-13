@@ -15,6 +15,9 @@ class CinemaWallet(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def has_sufficient_funds(self, amount):
+        return self.balance >= amount
+
     def __str__(self):
         return f"Wallet for {self.user.email}"
 
