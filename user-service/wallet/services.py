@@ -19,6 +19,7 @@ class WalletService:
             return self.wallet_model.objects.get(user=user)
         except self.wallet_model.DoesNotExist:
             raise ValidationError("Wallet not found")
+        
 
     def validate_amount(self, amount):
         if not isinstance(amount, Decimal):
