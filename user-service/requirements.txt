@@ -5,3 +5,4 @@ djangorestframework-simplejwt
 python-decouple==3.8
 django-allauth
 social-auth-app-django
+dj-rest-auth

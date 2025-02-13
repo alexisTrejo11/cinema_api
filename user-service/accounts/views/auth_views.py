@@ -2,7 +2,8 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from ..services import AuthService, UserService
+from ..service.auth_service import AuthService
+from ..service.user_service import UserService
 from rest_framework.views import APIView
 from ..serializers import UserSignupSerializer, LoginSerializer
 
@@ -28,7 +29,7 @@ def signup(request):
         'errors': validation_result.get_error_message()
         }, status=status.HTTP_400_BAD_REQUEST)
 
-    user = userService.create(data)
+    user = userService.create_user(data)
     tokens = authService.procces_signup(user)
 
     return Response({
@@ -92,4 +93,30 @@ def logout(request):
     return Response({
         'message': 'Logout successful'
     }, status=status.HTTP_200_OK)
-   
+
+from django.http import JsonResponse
+from allauth.socialaccount.models import SocialLogin
+from rest_framework_simplejwt.tokens import RefreshToken
+
+class LoginSuccessView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        sociallogin = SocialLogin.objects.filter(user=request.user).first()
+
+        if sociallogin and hasattr(sociallogin, 'extra_data'):
+            user_data = sociallogin.extra_data
+            access_token = user_data.get('access_token')
+            refresh_token = user_data.get('refresh_token')
+
+            return Response({
+                "user": {
+                    "id": request.user.id,
+                    "email": request.user.email,
+                    "first_name": request.user.first_name,
+                    "last_name": request.user.last_name
+                },
+                "access_token": access_token,
+                "refresh_token": refresh_token,
+            })
+        return Response({"detail": "No data found in tokens."}, status=400)

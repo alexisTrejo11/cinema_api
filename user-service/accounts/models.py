@@ -7,14 +7,14 @@ class UserRole(models.TextChoices):
     ADMIN = 'ADMIN', 'Administrator'
     MANAGER = 'MANAGER', 'Manager'
     STAFF = 'STAFF', 'Staff'
-    USER = 'PREMUIM_USER', 'Premuim User'
-    USER = 'USER', 'Regular User'
+    PREMUIM_USER = 'PREMUIM_USER', 'Premuim User'
+    COMMON_USER = 'COMMON_USER', 'Common User'
 
 class User(AbstractUser):
     email = models.EmailField(unique=True)
     first_name = models.CharField(max_length=20, default='', null=False)
     last_name = models.CharField(blank=True, default='', null=False)
-    provider = models.CharField(null=True)
+    provider = models.CharField(max_length=50, blank=True, null=True)
     phone = models.CharField(max_length=20, blank=True)
     birth_date = models.DateField(null=True, blank=True)
     profile_picture = models.URLField(blank=True, null=True)
@@ -23,7 +23,7 @@ class User(AbstractUser):
     role = models.CharField(
         max_length=20,
         choices=UserRole.choices,
-        default=UserRole.USER
+        default=UserRole.COMMON_USER
     )
     is_active = models.BooleanField(default=True)
 
