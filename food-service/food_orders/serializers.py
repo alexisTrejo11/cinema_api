@@ -124,39 +124,3 @@ class OrderSerializer(serializers.ModelSerializer):
         order.calculate_total()
         order.save()
         return order
-
-class PaymentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Payment
-        fields = [
-            'id', 'order', 'amount', 'payment_method', 'status',
-            'transaction_id', 'created_at', 'updated_at'
-        ]
-        read_only_fields = ['status', 'created_at', 'updated_at']
-
-    def validate_amount(self, value):
-        order = self.context['order']
-        if value > order.total_price:
-            raise serializers.ValidationError("Payment amount exceeds order total")
-        return value
-    
-
-    def validate_status_transition(current_status, new_status):
-        STATUS_TRANSITIONS = {
-        'pending': ['payment_pending', 'cancelled'],
-        'payment_pending': ['paid', 'cancelled'],
-        'paid': ['preparing', 'cancelled'],
-        'preparing': ['ready'],
-        'ready': ['delivered'],
-        'delivered': [],
-        'cancelled': [],
-        }
-        if new_status not in STATUS_TRANSITIONS.get(current_status, []):
-            raise serializers.ValidationError(f"Invalid status transition from {current_status} to {new_status}")
-
-
-class SalesReportSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SalesReport
-        fields = '__all__'
-        read_only_fields = ['created_at']

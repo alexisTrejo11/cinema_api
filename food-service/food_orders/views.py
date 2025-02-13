@@ -2,7 +2,7 @@
 from rest_framework import viewsets, filters, status
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
-from .models import Product, Combo, Promotion, Order, Payment, SalesReport
+from .models import Product, Combo, Promotion, Order
 from .serializers import ProductSerializer, ComboSerializer, PromotionSerializer, OrderSerializer, PaymentSerializer, SalesReportSerializer
 from rest_framework.decorators import action
 
@@ -64,24 +64,3 @@ class OrderViewSet(viewsets.ModelViewSet):
         return Response({"status": order.status})
 
 
-class PaymentViewSet(viewsets.ModelViewSet):
-    queryset = Payment.objects.all().order_by('-created_at')
-    serializer_class = PaymentSerializer
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['status', 'payment_method']
-
-
-    def get_queryset(self):
-        return self.queryset.filter(order__user_id=self.request.user.id)
-
-    def perform_create(self, serializer):
-        order = serializer.validated_data['order']
-        if order.status != 'payment_pending':
-            raise ValueError("Order is not in payment pending state")
-        serializer.save()
-
-class SalesReportViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = SalesReport.objects.all().order_by('-start_date')
-    serializer_class = SalesReportSerializer
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['report_type']
