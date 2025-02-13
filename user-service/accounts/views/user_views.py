@@ -5,6 +5,7 @@ from django.core.exceptions import ValidationError
 from ..serializers import UserSerializer
 from ..service.user_service import UserService
 from ..permisions import IsAdminUser
+from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiParameter, OpenApiTypes
 
 class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
@@ -14,6 +15,22 @@ class UserViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return self.user_service.get_active_users()
 
+    @extend_schema(
+        operation_description="Create a new user.",
+        request=UserSerializer,
+        responses={
+            201: OpenApiResponse(
+                description="User created successfully",
+                response=UserSerializer
+            ),
+            400: OpenApiResponse(
+                description="Invalid input data",
+                response={
+                    'error': OpenApiTypes.STR
+                }
+            ),
+        }
+    )
     def create(self, request):
         try:
             serializer = self.get_serializer(data=request.data)
@@ -23,6 +40,22 @@ class UserViewSet(viewsets.ModelViewSet):
         except ValidationError as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+    @extend_schema(
+        operation_description="Update an existing user.",
+        request=UserSerializer,
+        responses={
+            200: OpenApiResponse(
+                description="User updated successfully",
+                response=UserSerializer
+            ),
+            400: OpenApiResponse(
+                description="Invalid input data",
+                response={
+                    'error': OpenApiTypes.STR
+                }
+            ),
+        }
+    )
     def update(self, request, pk=None):
         try:
             serializer = self.get_serializer(data=request.data, partial=True)
@@ -32,6 +65,21 @@ class UserViewSet(viewsets.ModelViewSet):
         except ValidationError as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+    @extend_schema(
+        operation_description="Delete a user.",
+        responses={
+            200: OpenApiResponse(
+                description="User deleted successfully",
+                response=UserSerializer
+            ),
+            400: OpenApiResponse(
+                description="User could not be deleted",
+                response={
+                    'error': OpenApiTypes.STR
+                }
+            ),
+        }
+    )
     def destroy(self, request, pk=None):
         try:
             user = self.user_service.delete_user(pk)
@@ -39,6 +87,29 @@ class UserViewSet(viewsets.ModelViewSet):
         except ValidationError as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+    @extend_schema(
+        operation_description="Get users by role.",
+        parameters=[
+            OpenApiParameter(
+                name='role',
+                description='Role of the users to fetch',
+                required=True,
+                type=OpenApiTypes.STR,
+            )
+        ],
+        responses={
+            200: OpenApiResponse(
+                description="Users by role retrieved successfully",
+                response=UserSerializer(many=True)
+            ),
+            400: OpenApiResponse(
+                description="Role parameter is required",
+                response={
+                    'error': OpenApiTypes.STR
+                }
+            ),
+        }
+    )
     @action(detail=False, methods=['GET'])
     def by_role(self, request):
         role = request.query_params.get('role')

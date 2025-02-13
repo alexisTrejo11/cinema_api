@@ -6,7 +6,39 @@ from ..service.auth_service import AuthService
 from ..service.user_service import UserService
 from rest_framework.views import APIView
 from ..serializers import UserSignupSerializer, LoginSerializer
+from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiParameter
+from drf_spectacular.openapi import OpenApiTypes
 
+from django.http import JsonResponse
+from allauth.socialaccount.models import SocialLogin
+from rest_framework_simplejwt.tokens import RefreshToken
+
+
+@extend_schema(
+    operation_description="User signup. Registers a new user with email and password.",
+    request=UserSignupSerializer,
+    responses={
+        201: OpenApiResponse(
+            description="Registration successful",
+            response={
+                'message': OpenApiTypes.STR,
+                'tokens': OpenApiTypes.OBJECT,
+                'user': {
+                    'id': OpenApiTypes.INT,
+                    'email': OpenApiTypes.STR,
+                    'phone': OpenApiTypes.STR,
+                }
+            }
+        ),
+        400: OpenApiResponse(
+            description="Registration failed",
+            response={
+                'message': OpenApiTypes.STR,
+                'errors': OpenApiTypes.OBJECT,
+            }
+        ),
+    }
+)
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def signup(request):
@@ -16,17 +48,16 @@ def signup(request):
     serializer = UserSignupSerializer(data=request.data)
     if not serializer.is_valid():
         return Response({
-        'message': 'Registration failed',
-        'errors': serializer.errors
+            'message': 'Registration failed',
+            'errors': serializer.errors
         }, status=status.HTTP_400_BAD_REQUEST)
     
     data = serializer.validated_data
-
     validation_result = authService.validate_signup_credentials(data)
     if not validation_result.is_success():
         return Response({
-        'message': 'Registration failed',
-        'errors': validation_result.get_error_message()
+            'message': 'Registration failed',
+            'errors': validation_result.get_error_message()
         }, status=status.HTTP_400_BAD_REQUEST)
 
     user = userService.create_user(data)
@@ -43,6 +74,31 @@ def signup(request):
     }, status=status.HTTP_201_CREATED)
 
 
+@extend_schema(
+    operation_description="User login. Authenticates an existing user and returns tokens.",
+    request=LoginSerializer,
+    responses={
+        200: OpenApiResponse(
+            description="Login successful",
+            response={
+                'message': OpenApiTypes.STR,
+                'tokens': OpenApiTypes.OBJECT,
+                'user': {
+                    'id': OpenApiTypes.INT,
+                    'email': OpenApiTypes.STR,
+                    'phone': OpenApiTypes.STR,
+                }
+            }
+        ),
+        400: OpenApiResponse(
+            description="Login failed",
+            response={
+                'message': OpenApiTypes.STR,
+                'errors': OpenApiTypes.OBJECT,
+            }
+        ),
+    }
+)
 class LoginView(APIView):
     permission_classes = (AllowAny,)
     serializer_class = LoginSerializer
@@ -54,29 +110,52 @@ class LoginView(APIView):
             return Response({
                 'message': 'Login failed',
                 'errors': serializer.errors
-                }, status=status.HTTP_400_BAD_REQUEST)
+            }, status=status.HTTP_400_BAD_REQUEST)
 
         login_result = self.authService.validate_login(serializer.validated_data)
         if not login_result.is_success():
              return Response({
                 'message': 'Login failed',
                 'errors': login_result.get_error_message()
-                }, status=status.HTTP_400_BAD_REQUEST)
+            }, status=status.HTTP_400_BAD_REQUEST)
 
         user = login_result.get_data()
         tokens = self.authService.procces_login(user)
 
         return Response({
-                'message': 'Registration successful',
+                'message': 'Login successful',
                 'tokens': tokens,
                 'user': {
                     'id': user.id,
                     'email': user.email,
                     'phone': user.phone
                 }
-            }, status=status.HTTP_201_CREATED)
+            }, status=status.HTTP_200_OK)
 
-        
+
+@extend_schema(
+    operation_description="Logs out the user by invalidating the refresh token.",
+    request=OpenApiResponse(
+        description="A refresh token to invalidate",
+        response={
+            'refresh_token': OpenApiTypes.STR
+        }
+    ),
+    responses={
+        200: OpenApiResponse(
+            description="Logout successful",
+            response={
+                'message': OpenApiTypes.STR,
+            }
+        ),
+        400: OpenApiResponse(
+            description="Refresh token is required",
+            response={
+                'message': OpenApiTypes.STR,
+            }
+        ),
+    }
+)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def logout(request):
@@ -94,10 +173,31 @@ def logout(request):
         'message': 'Logout successful'
     }, status=status.HTTP_200_OK)
 
-from django.http import JsonResponse
-from allauth.socialaccount.models import SocialLogin
-from rest_framework_simplejwt.tokens import RefreshToken
 
+@extend_schema(
+    operation_description="Get the user’s social login data.",
+    responses={
+        200: OpenApiResponse(
+            description="Successful login",
+            response={
+                "user": {
+                    "id": OpenApiTypes.INT,
+                    "email": OpenApiTypes.STR,
+                    "first_name": OpenApiTypes.STR,
+                    "last_name": OpenApiTypes.STR,
+                },
+                "access_token": OpenApiTypes.STR,
+                "refresh_token": OpenApiTypes.STR,
+            }
+        ),
+        400: OpenApiResponse(
+            description="No data found in tokens.",
+            response={
+                "detail": OpenApiTypes.STR
+            }
+        ),
+    }
+)
 class LoginSuccessView(APIView):
     permission_classes = [IsAuthenticated]
 

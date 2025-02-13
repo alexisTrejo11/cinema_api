@@ -27,6 +27,8 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist', 
     'rest_framework.authtoken',
+
+    'drf_spectacular',
     
     'accounts',
     'wallet',
@@ -95,6 +97,7 @@ REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
     ),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 SIMPLE_JWT = {
@@ -132,12 +135,17 @@ SOCIALACCOUNT_PROVIDERS = {
     },
 }
 
-
 SOCIALACCOUNT_AUTO_SIGNUP = True
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_LOGIN_METHODS = {"email"}
 
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Mi API',
+    'DESCRIPTION': 'Documentación de mi API con Swagger',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,  # Oculta el esquema en Swagger UI
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
