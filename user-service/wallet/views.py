@@ -11,7 +11,7 @@ class WalletViewSet(viewsets.GenericViewSet):
     wallet_service = WalletService()
 
     @extend_schema(
-        operation_description="Make a purchase from wallet",
+        description="Make a purchase from wallet",
         request=OpenApiResponse(
             description="Amount and optional description for purchase",
             response={

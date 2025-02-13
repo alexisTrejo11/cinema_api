@@ -16,7 +16,7 @@ class UserViewSet(viewsets.ModelViewSet):
         return self.user_service.get_active_users()
 
     @extend_schema(
-        operation_description="Create a new user.",
+        description="Create a new user.",
         request=UserSerializer,
         responses={
             201: OpenApiResponse(
@@ -41,7 +41,7 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     @extend_schema(
-        operation_description="Update an existing user.",
+        description="Update an existing user.",
         request=UserSerializer,
         responses={
             200: OpenApiResponse(
@@ -66,7 +66,7 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     @extend_schema(
-        operation_description="Delete a user.",
+        description="Delete a user.",
         responses={
             200: OpenApiResponse(
                 description="User deleted successfully",
@@ -88,7 +88,7 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     @extend_schema(
-        operation_description="Get users by role.",
+        description="Get users by role.",
         parameters=[
             OpenApiParameter(
                 name='role',

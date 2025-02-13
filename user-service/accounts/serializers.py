@@ -5,7 +5,6 @@ from .models import User, UserRole
 from django.core.exceptions import ValidationError
 
 @extend_schema_serializer(
-    description="Serializer for user signup",
     examples=[
         {
             "email": "user@example.com",
@@ -20,6 +19,13 @@ from django.core.exceptions import ValidationError
     ]
 )
 class UserSignupSerializer(serializers.ModelSerializer):
+    """
+    Serializer for user registration.
+
+    Handles the creation of new user accounts by validating input data
+    and hashing the password before saving the user.
+    """
+
     password = serializers.CharField(write_only=True, required=True, style={'input_type': 'password'})
 
     class Meta:
@@ -34,7 +40,6 @@ class UserSignupSerializer(serializers.ModelSerializer):
 
 
 @extend_schema_serializer(
-    description="Serializer for user details",
     examples=[
         {
             "id": 1,
@@ -50,9 +55,21 @@ class UserSignupSerializer(serializers.ModelSerializer):
     ]
 )
 class UserSerializer(serializers.ModelSerializer):
-    
+    """
+    Serializer for retrieving user details.
+
+    Provides basic user information such as email, name, phone number,
+    birth date, and profile picture. It also includes the user's role
+    and active status.
+    """
+
     @extend_schema_field(str)
     def validate_role(self, value):
+        """
+        Validates the user role.
+
+        Ensures the role is one of the predefined values in UserRole.
+        """
         if value not in UserRole.values:
             raise ValidationError(f"Invalid role. Must be one of {UserRole.values}")
         return value
@@ -64,11 +81,18 @@ class UserSerializer(serializers.ModelSerializer):
         read_only_fields = ['joined_at', 'last_login']
 
 
-@extend_schema_serializer(
-    description="Custom token serializer to include user details in response"
-)
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    """
+    Serializer for obtaining authentication tokens.
+
+    Extends the default JWT serializer to include user details
+    in the response.
+    """
+
     def validate(self, attrs):
+        """
+        Validates user credentials and returns tokens with additional user details.
+        """
         data = super().validate(attrs)
         data['user'] = {
             'id': self.user.id,
@@ -79,13 +103,15 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
     @classmethod
     def get_token(cls, user):
+        """
+        Generates a JWT token with additional user information.
+        """
         token = super().get_token(user)
         token['email'] = user.email
         return token
 
 
 @extend_schema_serializer(
-    description="Serializer for user login",
     examples=[
         {
             "email": "user@example.com",
@@ -94,5 +120,10 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     ]
 )
 class LoginSerializer(serializers.Serializer):
+    """
+    Serializer for user authentication.
+
+    Requires an email and password to authenticate the user.
+    """
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True, style={'input_type': 'password'})

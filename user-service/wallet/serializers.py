@@ -3,7 +3,6 @@ from drf_spectacular.utils import extend_schema_serializer
 from .models import CinemaWallet, WalletTransaction
 
 @extend_schema_serializer(
-    description="Serializer for wallet transactions",
     examples=[
         {
             "id": 1,
@@ -15,13 +14,19 @@ from .models import CinemaWallet, WalletTransaction
     ]
 )
 class WalletTransactionSerializer(serializers.ModelSerializer):
+    """
+    Serializer for wallet transactions.
+
+    Handles the serialization of transactions related to the user's wallet,
+    including deposits, purchases, and refunds.
+    """
+
     class Meta:
         model = WalletTransaction
         fields = ('id', 'amount', 'transaction_type', 'description', 'created_at')
 
 
 @extend_schema_serializer(
-    description="Serializer for user's wallet with recent transactions",
     examples=[
         {
             "balance": "250.00",
@@ -45,6 +50,12 @@ class WalletTransactionSerializer(serializers.ModelSerializer):
     ]
 )
 class WalletSerializer(serializers.ModelSerializer):
+    """
+    Serializer for the user's wallet.
+
+    Includes the current wallet balance and a list of recent transactions.
+    """
+
     recent_transactions = WalletTransactionSerializer(
         source='wallettransaction_set',
         many=True,

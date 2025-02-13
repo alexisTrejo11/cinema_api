@@ -2,7 +2,6 @@ from pathlib import Path
 from datetime import timedelta
 from decouple import config, Csv
 
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -12,10 +11,7 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=Csv())
 
-
-
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -98,6 +94,24 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
     ),
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '40/minute',   
+        'user': '70/minute'
+    }
+}
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://redis:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
 }
 
 SIMPLE_JWT = {
@@ -111,12 +125,6 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
 )
-
-LOGIN_URL = 'account_login'
-ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'http'
-ACCOUNT_EMAIL_VERIFICATION = 'none'
-SOCIALACCOUNT_AUTO_SIGNUP = True
-SITE_ID = 1
 
 ACCOUNT_ADAPTER = 'accounts.adapters.CustomAccountAdapter'  
 SOCIALACCOUNT_ADAPTER = 'accounts.adapters.CustomSocialAccountAdapter'
@@ -139,13 +147,18 @@ SOCIALACCOUNT_AUTO_SIGNUP = True
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_LOGIN_METHODS = {"email"}
+LOGIN_URL = 'account_login'
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'http'
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+SITE_ID = 1
 
 SPECTACULAR_SETTINGS = {
     'TITLE': 'Mi API',
     'DESCRIPTION': 'Documentación de mi API con Swagger',
     'VERSION': '1.0.0',
-    'SERVE_INCLUDE_SCHEMA': False,  # Oculta el esquema en Swagger UI
+    'SERVE_INCLUDE_SCHEMA': False, 
 }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

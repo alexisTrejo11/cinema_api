@@ -15,7 +15,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 
 @extend_schema(
-    operation_description="User signup. Registers a new user with email and password.",
+    description="User signup. Registers a new user with email and password.",
     request=UserSignupSerializer,
     responses={
         201: OpenApiResponse(
@@ -75,7 +75,7 @@ def signup(request):
 
 
 @extend_schema(
-    operation_description="User login. Authenticates an existing user and returns tokens.",
+    description="User login. Authenticates an existing user and returns tokens.",
     request=LoginSerializer,
     responses={
         200: OpenApiResponse(
@@ -134,7 +134,7 @@ class LoginView(APIView):
 
 
 @extend_schema(
-    operation_description="Logs out the user by invalidating the refresh token.",
+    description="Logs out the user by invalidating the refresh token.",
     request=OpenApiResponse(
         description="A refresh token to invalidate",
         response={
@@ -175,7 +175,7 @@ def logout(request):
 
 
 @extend_schema(
-    operation_description="Get the user’s social login data.",
+    description="Get the user’s social login data.",
     responses={
         200: OpenApiResponse(
             description="Successful login",

@@ -7,3 +7,5 @@ django-allauth
 social-auth-app-django
 dj-rest-auth
 drf-spectacular
+django-ratelimit-backend
+django-redis
