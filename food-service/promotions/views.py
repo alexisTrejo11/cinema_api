@@ -2,7 +2,9 @@ from rest_framework import viewsets, filters
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Combo, Promotion
 from .serializers import ComboSerializer, PromotionSerializer
+from drf_spectacular.utils import extend_schema
 
+@extend_schema(tags=['Combos'])
 class ComboViewSet(viewsets.ModelViewSet):
     queryset = Combo.objects.prefetch_related(
         'comboproduct_set__product'
@@ -13,6 +15,7 @@ class ComboViewSet(viewsets.ModelViewSet):
     ordering_fields = ['price', 'created_at']
 
 
+@extend_schema(tags=['Promotions'])
 class PromotionViewSet(viewsets.ModelViewSet):
     queryset = Promotion.objects.all().order_by('-start_date')
     serializer_class = PromotionSerializer

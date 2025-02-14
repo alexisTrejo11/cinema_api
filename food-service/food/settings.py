@@ -38,6 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    
+    'drf_spectacular',
+    
     'orders',
     'products',
     'promotions',
@@ -52,6 +55,10 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
 
 ROOT_URLCONF = 'food.urls'
 
@@ -88,8 +95,40 @@ DATABASES = {
     }
 }
 
-# User Service URL for validation
 USER_SERVICE_URL = config('USER_SERVICE_URL')
+
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Food & Order Management Service',
+    'DESCRIPTION': 'Microservice responsible for managing food items, products, orders, combos, and promotions.',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'SCHEMA_PATH_PREFIX': r'/api/v1/',
+    'COMPONENT_SPLIT_REQUEST': True,
+    'SCHEMA_COERCE_PATH_PK_SUFFIX': True,
+    'SWAGGER_UI_SETTINGS': {
+        'deepLinking': True,
+        'persistAuthorization': True,
+    },
+    'TAGS': [
+        {
+            'name': 'Products',
+            'description': 'Endpoints for managing food products.',
+        },
+        {
+            'name': 'Orders',
+            'description': 'Endpoints for managing customer orders.',
+        },
+        {
+            'name': 'Combos',
+            'description': 'Endpoints for managing food combos.',
+        },
+        {
+            'name': 'Promotions',
+            'description': 'Endpoints for managing promotions and discounts.',
+        },
+    ],
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
